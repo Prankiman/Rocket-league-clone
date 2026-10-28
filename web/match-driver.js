@@ -10,7 +10,7 @@ export class MatchDriver {
     this.paused=false; this.goalTicks=0; this.epoch=0; this.request=0; this.botWait=0; this.elapsed=0;
   }
   async start(mode,id='nexto') {
-    if (!['freeplay','offline'].includes(mode) || !['nexto','necto','seer'].includes(id)) throw Error('Unknown game selection');
+    if (!['freeplay','offline','aim'].includes(mode) || !['nexto','necto','seer'].includes(id)) throw Error('Unknown game selection');
     let candidate=null;
     if (mode==='offline') {
       candidate=this.makeBot(id);
@@ -19,7 +19,7 @@ export class MatchDriver {
     this.bot?.dispose(); this.bot=candidate; this.mode=mode; this.paused=false;
     this.sim.configureCars('fennec',false,0);
     if (mode==='offline' && this.sim.addCar(1,'default')!==1) throw Error('Opponent creation failed');
-    this.sim.setUnlimitedBoost(mode==='freeplay'); this.sim.setGoalExplosionEnabled(false);
+    this.sim.setUnlimitedBoost(mode!=='offline'); this.sim.setGoalExplosionEnabled(false);
     if (mode==='offline') this.session.start(); else this.session.leave();
     if(candidate) candidate.onError=message => { this.paused=true; this.callbacks.onError?.(message); };
     this.resetKickoff();
@@ -57,7 +57,9 @@ export class MatchDriver {
     if(this.mode==='offline')this.sim.setControls(1,this.botControls());
     this.sim.step(1); this.elapsed++;
     const goal=this.sim.pollGoal();
-    const scored=(goal===1||goal===2)&&!this.goalTicks;
+    // Training maps use the goal flag only as a reset hint; only a real match
+    // turns it into a score and celebration.
+    const scored=(goal===1||goal===2)&&!this.goalTicks&&this.mode==='offline';
     let event='none';
     if(this.mode==='offline') {
       const ball=this.sim.state;

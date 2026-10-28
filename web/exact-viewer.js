@@ -7,7 +7,7 @@ import { createPlay } from './rocket-play.js?v=pages-performance-2';
 import {setupBindings} from './bindings.js';
 import {addScenery} from './scenery.js';
 import {originalGround} from './recovered-ground.js';
-import {addOriginalDaylight} from './original-environment.js';
+import {addSkybox, addNightCityLighting} from './night-city.js';
 import {sourceAssets} from './source-materials.js';
 import {createParkToneMapper} from './park-tonemapping.js';
 import {createGrassCapture} from './grass-capture.js';
@@ -17,8 +17,16 @@ import {createFrameMeter} from './frame-meter.js';
 import {createRenderScheduler} from './render-scheduler.js';
 import {createQualityPresets} from './quality-presets.js';
 import {createGameMenu} from './game-menu.js?v=map-only-1';
+import {setupGameplaySettings} from './gameplay-settings.js';
+import {setupAudioSettings} from './audio-settings.js';
 import {optimizeSceneUniforms} from './compact-uniforms.js';
 setupBindings();
+setupGameplaySettings();
+setupAudioSettings();
+// Camera dialog wiring before play loads; setupCameraSettings replaces it with the populated version.
+const cameraPanel=document.querySelector('#camera-settings');
+document.querySelector('#camera-open').onclick=()=>cameraPanel.showModal();
+document.querySelector('#camera-close').onclick=()=>cameraPanel.close();
 const gameMenu=createGameMenu();
 let originalReflectionReady=tierTextureURL('./assets/original/NativeVehicle__body_grain__Body_Grain_D.png').indexOf('/quality/')<0;
 const canvas=document.querySelector('#scene');
@@ -59,15 +67,18 @@ const renderScaleOverride=Number(new URLSearchParams(location.search).get('scale
 renderer.setPixelRatio(renderScaleOverride>=.4&&renderScaleOverride<=1?renderScaleOverride:new URLSearchParams(location.search).has('reference')?.85:performanceSettings.scale);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.shadowMap.enabled=false;
-renderer.setClearColor('#9eb7c9');
+renderer.setClearColor('#05070d');
 const parkToneMapper=createParkToneMapper(renderer);
 const scene=new THREE.Scene();
+addSkybox(scene,renderer,{upload:document.querySelector('#skybox-upload'),reset:document.querySelector('#skybox-reset')});
+addNightCityLighting(scene,renderer);
 const grassCaptureReady=createGrassCapture(renderer);
-const daylight=addOriginalDaylight(scene,renderer).catch(loadFailed);
 const camera=new THREE.PerspectiveCamera(42,1,.1,1000);
 const controls=new OrbitControls(camera,canvas);
 let free=false;let dragging=false;let yaw=0;let pitch=0;const keys=new Set();
 let play,ground;
+const worldNodes={arena:[],scenery:[],ground:null};
+function publishWorld(){play?.setEnvironment?.(worldNodes);}
 const referenceMode=new URLSearchParams(location.search).has('reference');
 const mapOnly=new URLSearchParams(location.search).has('mapOnly');
 function referenceView(){
@@ -104,7 +115,10 @@ document.querySelector('#reset').addEventListener('click',()=>{
 try {
  ground=await originalGround({reflectionTexture:(await grassCaptureReady).texture});scene.add(ground);
  status.textContent='Loading original arena…';
+ const beforeArena=new Set(scene.children);
  const arenaCount=await addArena(scene,renderer);
+ worldNodes.arena=[...scene.children].filter(node=>!beforeArena.has(node));
+ worldNodes.ground=ground;
  status.textContent=`Arena loaded · ${arenaCount} objects`;
  canvas.dataset.source='Park_P.upk: Grass_Base + recovered original field DXBC';
  canvas.dataset.fieldShader=ground.userData.fieldShaderQuality;
@@ -118,22 +132,27 @@ if(mapOnly){
  playButton.hidden=true;
  document.querySelector('#controls-open').hidden=true;
  document.querySelector('#camera-open').hidden=true;
+ document.querySelector('#audio-open').hidden=true;
  document.querySelector('#freeplay-tools').hidden=true;
 }
+const beforeScenery=new Set(scene.children);
 addScenery(scene,camera).then(async count=>{
- await daylight;await (await sourceAssets()).whenTexturesReady();
+ worldNodes.scenery=[...scene.children].filter(node=>!beforeScenery.has(node));
+ publishWorld();
+ await (await sourceAssets()).whenTexturesReady();
  if(ground&&ground.userData.fieldShaderQuality==='full'){
   const capture=await grassCaptureReady;await capture.capture(scene,ground);setDetailReflection(capture.texture);canvas.dataset.grassCapture=capture.fidelity.status;
  }
- renderer.shadowMap.needsUpdate=true;document.querySelector('.eyebrow').textContent='DAY · ORIGINAL ASSETS';
+ renderer.shadowMap.needsUpdate=true;document.querySelector('.eyebrow').textContent='NIGHT · CITY SKYLINE';
  canvas.dataset.sourceInstances=String(scene.children.reduce((sum,node)=>sum+(node.userData.sourceInstanceCount??0),0));
  partReady('scenery');
 }).catch(loadFailed);
 THREE.DefaultLoadingManager.onLoad=()=>{renderer.shadowMap.needsUpdate=true;};
-createPlay(scene,camera,canvas).then(p=>{play=p;play.setActive(false);if(mapOnly)play.mapOnly();else gameMenu.bind(play);controls.enabled=mapOnly||false;playButton.disabled=false;playButton.textContent='Drive Fennec';if(referenceMode)referenceView();else if(new URLSearchParams(location.search).has('effectsChecks')||new URLSearchParams(location.search).has('cameraChecks'))playButton.click();partReady('play');}).catch(e=>{playButton.textContent='Car/physics failed to load';loadFailed(e);});
+createPlay(scene,camera,canvas).then(p=>{play=p;play.setActive(false);if(mapOnly)play.mapOnly();else gameMenu.bind(play);publishWorld();controls.enabled=mapOnly||false;playButton.disabled=false;playButton.textContent='Drive Fennec';if(referenceMode)referenceView();else if(new URLSearchParams(location.search).has('effectsChecks')||new URLSearchParams(location.search).has('cameraChecks'))playButton.click();partReady('play');}).catch(e=>{playButton.textContent='Car/physics failed to load';loadFailed(e);});
 document.querySelector('#reference-view').addEventListener('click',referenceView);
 playButton.addEventListener('click',()=>{
- if(!play)return;play.setActive(!play.active);free=false;keys.clear();controls.enabled=!play.active;
+ if(!play)return;
+ play.setActive(!play.active);free=false;keys.clear();controls.enabled=!play.active;
  freeButton.disabled=play.active;freeButton.textContent='Move inside';playButton.textContent=play.active?'Stop driving':'Drive Fennec';
  hint.textContent=play.active?'Your Rocket League bindings · Controls to remap · Camera for camera settings':'Drag to orbit · Scroll to zoom · Right-drag to pan';
  if(!play.active){camera.up.set(0,1,0);camera.fov=42;camera.updateProjectionMatrix();reset();}

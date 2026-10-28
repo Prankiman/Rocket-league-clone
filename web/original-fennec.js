@@ -16,7 +16,7 @@ export async function loadOriginalFennec(){
  const wheelMat=new THREE.MeshPhongMaterial({map:wheelD,normalMap:wheelN,normalScale:new THREE.Vector2(1,-1),shininess:50,specular:0x64717a});wheelMat.name='Original OEM wheel textures';
  const wheels=[];wheelAsset.scene.updateMatrixWorld(true);
  for(const jointName of ['FL_WheelTranslation_jnt','FR_WheelTranslation_jnt','BL_WheelTranslation_jnt','BR_WheelTranslation_jnt']){
-  const joint=asset.scene.getObjectByName(jointName);const wheel=new THREE.Group();joint.getWorldPosition(wheel.position);wheel.position.multiplyScalar(100);wheel.position.z-=Math.sign(wheel.position.z)*.5;wheel.name='Original OEM wheel';
+  const joint=asset.scene.getObjectByName(jointName);const wheel=new THREE.Group();joint.getWorldPosition(wheel.position);wheel.position.multiplyScalar(100);wheel.position.z-=Math.sign(wheel.position.z)*.5;wheel.name='Original OEM wheel';wheel.userData.front=jointName.startsWith('F');
   const radius=jointName.startsWith('F')?12.75:13.75;
   wheelAsset.scene.traverse(n=>{if(n.isMesh){const g=n.geometry.clone().applyMatrix4(n.matrixWorld);g.scale(radius/.16313,radius/.16313,13/.1452878);const m=new THREE.Mesh(g,wheelMat);if(wheel.position.z<0)m.rotation.y=Math.PI;wheel.add(m);}});root.add(wheel);wheels.push(wheel);
  }

@@ -28,12 +28,13 @@ class PhysicsSimulation {
       this.stateView
     );
   }
-  async init() {
+  async init(extraMeshes = []) {
+    this.mapMeshes = extraMeshes;
     this.module = await initializeGameplayPhysics(jC, this.physicsSelection);
     const e = await (
         await fetch(new URL("../../assets/arena/collision/manifest.json", import.meta.url))
       ).json(),
-      t = await Promise.all(
+      loaded = await Promise.all(
         e.map(
           async (A) =>
             new Uint8Array(
@@ -41,6 +42,9 @@ class PhysicsSimulation {
             ),
         ),
       ),
+      // Optional in-memory collision sets (custom maps). They share the same
+      // native CMF format and are appended to the stock arena meshes.
+      t = [...loaded, ...extraMeshes.map(mesh => mesh instanceof Uint8Array ? mesh : new Uint8Array(mesh))],
       n = t.reduce((A, l) => A + l.length, 0),
       r = this.module._malloc(n),
       s = this.module._malloc(t.length * 4);
@@ -81,6 +85,12 @@ class PhysicsSimulation {
     if (t && this.addCar(s, "default") !== no)
       throw new Error("Opponent creation failed");
     (this.resetKickoff(), this.resetView());
+  }
+  async switchMap(extraMeshes = []) {
+    const candidate = new PhysicsSimulation(this.physicsSelection);
+    await candidate.init(extraMeshes);
+    candidate.dodgeDeadzone = this.dodgeDeadzone;
+    for (const key of Object.getOwnPropertyNames(candidate)) this[key] = candidate[key];
   }
   async switchPhysics(selection, kind, match, team, unlimited, canCommit = () => true) {
     const candidate = new PhysicsSimulation(selection);
@@ -136,6 +146,27 @@ class PhysicsSimulation {
     this.module._physics_resetKickoff(e);
     this.lastLaunch = null;
     this.ballActionHistory = [];
+  }
+  // Teleport helpers for training modes. The native bridge expects the same
+  // flat layouts exposed in the state block: basis vectors are columns 3/6/9
+  // for cars, followed by velocity and angular velocity.
+  setBallState(position, velocity = [0, 0, 0], angularVelocity = [0, 0, 0]) {
+    const values = new Float32Array(18);
+    values.set([...position, 1, 0, 0, 0, 1, 0, 0, 0, 1, ...velocity, ...angularVelocity]);
+    const ptr = this.module._malloc(values.byteLength);
+    try {
+      this.module.HEAPF32.set(values, ptr / 4);
+      return this.module._physics_setBallState(ptr) === 1;
+    } finally { this.module._free(ptr); }
+  }
+  setCarState(index, { position, forward = [1, 0, 0], right = [0, 1, 0], up = [0, 0, 1], velocity = [0, 0, 0], angularVelocity = [0, 0, 0], boost = 100 } = {}) {
+    const values = new Float32Array(51);
+    values.set([...position, ...forward, ...right, ...up, ...velocity, ...angularVelocity, boost]);
+    const ptr = this.module._malloc(values.byteLength);
+    try {
+      this.module.HEAPF32.set(values, ptr / 4);
+      return this.module._physics_setCarState(index, ptr) === 1;
+    } finally { this.module._free(ptr); }
   }
   controlBall(e, t) {
     const before = Array.from(this.state.slice(STATE_LAYOUT.BALL + CAR_STATE.VEL, STATE_LAYOUT.BALL + CAR_STATE.VEL + 3));

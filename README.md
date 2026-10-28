@@ -1,10 +1,27 @@
-# Beckwith Park Lightweight
+# Beckwith Park Lightweight — Prankiman fork
+
+**[Upstream live demo](https://malikahed.github.io/Rocket-league-clone/)** · **[Fork source](https://github.com/Prankiman/Rocket-league-clone)**
+
+Playable web port of the locally extracted Beckwith Park map, with the original extracted Fennec and ball visuals, RocketSim physics, free play, controller/keyboard controls, garage paint, and Seer/Necto/Nexto offline matches.
+
+This fork is maintained by [Prankiman](https://github.com/Prankiman) and builds on the original [Beckwith Park Lightweight](https://github.com/MalikAhed/Rocket-league-clone) by [Malik Abuallatta (@MalikAhed)](https://github.com/MalikAhed). The original project, asset extraction pipeline, renderer, and extracted map package are his work.
+
+## About this fork
+
+This is a personal fork, not a replacement for the upstream project. It keeps the original lightweight packed-asset approach and RocketSim physics while adding:
+
+- A rebuilt **Controls** dialog with separate **Keyboard & mouse** and **Controller** sections, multiple inputs per action, and per-direction controller bindings. For example, pitch up can be left-stick up while pitch down is `B` / Circle; each action is visually grouped with the inputs mapped to it.
+- **Aim Trainer** mode with hit, streak, and best-run tracking.
+- A local **audio mixer** for engine, boost, impact, goal, and UI sounds, with an Audio settings dialog.
+- **Night City** skybox plus custom equirectangular skybox upload.
+- Optional **ball-location arrow** and **flip-reset indicator**.
+- Browser-persisted camera, gameplay, audio, skybox, and performance settings.
 
 ## Play online
 
-**[Launch the GitHub Pages version](https://malikahed.github.io/Rocket-league-clone/)**
+The published demo currently tracks the upstream project: **[launch the upstream GitHub Pages version](https://malikahed.github.io/Rocket-league-clone/)**. To play this fork with its latest changes, run it locally using the instructions below.
 
-Playable web port of the locally extracted Beckwith Park map, with the original extracted Fennec and ball visuals, RocketSim physics, free play, controller/keyboard controls, garage paint, and Seer/Necto/Nexto offline matches.
+This is an unofficial fan project and is not affiliated with or endorsed by Psyonix or Epic Games.
 
 ## Run
 
@@ -16,7 +33,9 @@ npm start
 
 Open http://127.0.0.1:4188/. No npm install, build step, account, CDN, or internet connection is needed to play. Keep the terminal running. `PORT` and `HOST` can override the default loopback address.
 
-WASD drives, left mouse jumps, right mouse boosts, Shift powerslides, and Space toggles ball camera; use the in-game controls panel for the complete bindings and controller mapping. Escape pauses. Play → Free Play starts training; Play → Offline Play starts an exhibition.
+WASD drives, left mouse jumps, right mouse boosts, Shift powerslides, and Space toggles ball camera; use the in-game controls panel for the complete bindings and controller mapping. Escape pauses. Play → Free Play starts training, Play → Aim Trainer targets the training wall, and Play → Offline Play starts an exhibition.
+
+Known deviation: driving over a boost pad while already at full boost still spends the pad. RocketSim consumes pads on contact and the frozen physics binary cannot refuse, so the pad goes on cooldown without a benefit.
 
 ## Graphics and performance
 
@@ -58,12 +77,26 @@ Recovered shader JavaScript and editable application JavaScript are included. Th
 
 Existing third-party licenses and bot notices are preserved in `web/licenses`, `web/physics/THIRD-PARTY-NOTICES.txt`, `web/vendor`, and `web/assets/bot`.
 
+### Credits
+
+- **Original project:** [Beckwith Park Lightweight](https://github.com/MalikAhed/Rocket-league-clone) by [Malik Abuallatta (@MalikAhed)](https://github.com/MalikAhed) — original code, asset extraction, renderer, and project documentation.
+- **Fork:** [Prankiman/Rocket-league-clone](https://github.com/Prankiman/Rocket-league-clone), maintained by [Prankiman](https://github.com/Prankiman) and fork contributors.
+- [RocketSim](https://github.com/ZealanL/RocketSim) by ZealanL — the independent physics simulation behind the stock arena.
+- [RocketLeague-Audio](https://github.com/ItsBranK/RocketLeague-Audio) by ItsBranK — the in-game sound collection this game plays; audio stays muted until the samples are fully loaded and the mixer is applied.
+- **Offline bots:** Seer, Necto, and Nexto by their respective authors. Their notices and licenses are preserved in `web/assets/bot/`.
+- **Rocket League assets:** map, car, ball, texture, and sound assets remain the property of Psyonix, Epic Games, and their respective owners.
+
+### Development notes
+
+Fork-specific work was developed with [OpenCode](https://opencode.ai), an open-source AI coding agent, used for code exploration, implementation, and browser-based verification. AI-assisted edits were reviewed and validated with `npm test` and the project's browser smoke tests.
+
 ## License
 
 Original contributions by Malik Abuallatta are licensed under the
-[MIT License](LICENSE). Third-party code, adaptations, dependencies, and assets
-retain their existing licenses and notices. This license does not grant new
-rights to third-party material.
+[MIT License](LICENSE). Fork-specific additions are provided under the same
+license unless noted otherwise. Third-party code, adaptations, dependencies,
+and assets retain their existing licenses and notices. This license does not
+grant new rights to third-party material.
 
 Rocket League assets retain their owners’ rights. Bot models, their adapted
 code, and shader adaptations retain the terms in `web/assets/bot/`,

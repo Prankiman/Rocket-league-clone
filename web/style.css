@@ -18,6 +18,14 @@ footer span+span::before { content:'•'; margin-right:18px; color:#48644d; }
 .actions{display:flex;gap:6px;flex-shrink:0}
 .actions{flex-wrap:wrap}
 dialog{background:#102219;color:#eef8ef;border:1px solid #739d80;border-radius:16px;width:min(620px,94vw);max-height:85vh;overflow:auto;padding:20px}dialog::backdrop{background:#0009}dialog p{font-size:.85rem;color:#b7cebe}dialog label{display:flex;justify-content:space-between;gap:12px;margin:10px 0}.binding-row{display:grid;grid-template-columns:1fr 1.2fr auto;align-items:center;gap:8px}dialog select,dialog input{background:#1b3324;color:white;border:1px solid #64826b;padding:7px;border-radius:6px;max-width:180px}.binding-row button{padding:8px;font-size:.8rem}
+.settings-section{margin-top:16px;padding-top:12px;border-top:1px solid #ffffff26}
+.settings-section h3{margin:0 0 6px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#95d6a8}
+#performance-settings .quality-setting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0}
+#performance-settings .quality-setting>label{margin:0}
+#performance-settings .quality-setting+.quality-setting{margin-top:6px}
+.skybox-upload{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;min-width:0}
+.skybox-upload input[type=file]{max-width:205px;font-size:.72rem;color:#c1d6e6}
+.skybox-upload button{padding:6px 10px;font-size:.75rem}
 header{flex-wrap:nowrap;padding:3px 8px;gap:8px;background:#0b171cf2}header>div:first-child{display:flex;align-items:center;gap:10px}h1{font:650 14px/1 system-ui;white-space:nowrap}.eyebrow{font-size:9px;letter-spacing:.06em;margin:0}header button{padding:6px 10px;font-size:11px}
 #play-hud{position:absolute;top:12px;left:12px;padding:10px 14px;background:#071109d9;border-radius:12px;font-weight:650;font-size:.85rem}
 #camera-settings{position:absolute;right:8px;top:8px;width:245px;max-height:calc(100% - 24px);overflow:auto;background:#0c1a13ed;padding:10px;border:1px solid #668274;border-radius:8px;font-size:.8rem}
@@ -36,8 +44,37 @@ header{flex-wrap:nowrap;padding:3px 8px;gap:8px;background:#0b171cf2}header>div:
 #play-hud{left:136px;max-width:calc(100% - 146px);}
 
 #quality-control{position:absolute;top:12px;right:12px;z-index:5;background:#0b1725dc;color:#edf5f8;border:1px solid #ffffff24;border-radius:8px;padding:8px 10px;max-width:245px;font-size:12px;backdrop-filter:blur(5px)}
-#quality-control .quality-setting{display:flex;align-items:center;justify-content:space-between;gap:10px}#quality-control .quality-setting+.quality-setting{margin-top:6px}#quality-control label{white-space:nowrap}#quality-control select{color:#edf5f8;background:#1c3041;border:1px solid #ffffff38;border-radius:4px;padding:4px 8px}#quality-description{margin:6px 0 0;line-height:1.4;font-size:11px;color:#c4d3dd} @media(max-width:600px){#quality-control{max-width:180px}#quality-description{display:none}}
+#quality-control .quality-setting{display:flex;align-items:center;justify-content:space-between;gap:10px}#quality-control .quality-setting+.quality-setting{margin-top:6px}#quality-control label{white-space:nowrap}#quality-control select{color:#edf5f8;background:#1c3041;border:1px solid #ffffff38;border-radius:4px;padding:4px 8px}#quality-description{margin:6px 0 0;line-height:1.4;font-size:11px;color:#c4d3dd}
+.speed-controls{display:flex;align-items:center;gap:6px;flex:none}
+#quality-control input[type=range]{width:104px;accent-color:#57e07f;cursor:pointer}
+#quality-control input[type=number]{width:54px;color:#edf5f8;background:#1c3041;border:1px solid #ffffff38;border-radius:4px;padding:4px 6px;text-align:right;-moz-appearance:textfield;appearance:textfield}
+#quality-control input[type=number]::-webkit-outer-spin-button,#quality-control input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0} @media(max-width:600px){#quality-control{max-width:180px}#quality-description{display:none}}
 
 #viewport[data-quality="balanced"] :is(#quality-control,.hint,#status),#viewport[data-quality="low"] :is(#quality-control,.hint,#status){backdrop-filter:none}
 
 #camera-settings{position:fixed;inset:0;margin:auto;width:min(560px,94vw);max-height:85vh;padding:20px;font-size:.9rem;z-index:auto}#camera-settings input[type="checkbox"]{width:auto}#camera-settings .actions{margin-top:16px}#freeplay-tools{top:76px}
+
+
+.mixer-row{display:grid;grid-template-columns:minmax(120px,150px) 1fr 46px;align-items:center;gap:10px;margin:9px 0}
+.mixer-row input[type=range]{width:100%;padding:0;max-width:none;accent-color:#5fbf7a;background:transparent;border:0}
+.mixer-value{font-size:.78rem;color:#b7cebe;text-align:right;font-variant-numeric:tabular-nums}
+#quality-control input[type=checkbox]{width:auto}
+
+
+/* Multi-input control settings */
+.controls-section{margin:16px 0 0;padding-top:14px;border-top:1px solid #ffffff24}
+.controls-section:first-child{margin-top:0;padding-top:0;border-top:0}
+.controls-section h3{margin:0 0 6px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#95d6a8}
+.binding-hint{margin:0 0 10px!important;font-size:.78rem!important}
+.binding-row-multi{grid-template-columns:minmax(110px,1fr) minmax(150px,1.5fr) auto;padding:8px 10px;border:1px solid #ffffff24;border-radius:8px;background:#0d2018;align-items:center}
+.binding-row-multi+.binding-row-multi{margin-top:6px}
+.binding-row-multi .binding-name{font-weight:600}
+.binding-values{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+.binding-chip{display:inline-flex;align-items:stretch;border:1px solid #64826b;border-radius:6px;overflow:hidden;background:#17301f}
+.binding-chip .binding-value,.binding-chip .binding-remove{border:0!important;border-radius:0!important;background:transparent!important;padding:5px 7px!important;color:#eef8ef}
+.binding-chip .binding-remove{padding:5px 6px!important;color:#ffb8b8;border-left:1px solid #64826b!important}
+.binding-actions{display:flex;gap:4px}
+.binding-actions button{padding:6px 8px;font-size:.75rem}
+.binding-empty{color:#8aa795;font-size:.8rem;align-self:center}
+.binding-axis,.binding-toggle{gap:8px}
+@media(max-width:620px){.binding-row-multi{grid-template-columns:1fr}.binding-actions{justify-content:flex-end}}

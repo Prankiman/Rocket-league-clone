@@ -1,13 +1,23 @@
 import {keyboardBindings as keys,controlSettings} from './player-settings.js';
+import {keyboardCodeList} from './input-bindings.js';
 export function createKeyboardReader(canvas,{active,paused,onAction}){
  const held=new Set(),axes={throttle:0,steer:0,pitch:0,yaw:0,roll:0};
- const down=name=>Boolean(keys[name]&&held.has(keys[name]));
+ const down=name=>keyboardCodeList(keys,name).some(code=>held.has(code));
  const eligible=e=>active()&&!paused()&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target?.tagName??'');
- function press(code,e){if(!eligible(e)||!Object.values(keys).includes(code))return;e.preventDefault();if(held.has(code))return;held.add(code);for(const name of ['camera','reset','bringBall','takePossession','launchBall','passBall'])if(keys[name]===code)onAction(name);}
+ function press(code,e){
+  if(!eligible(e))return;
+  const bound=Object.keys(keys).filter(name=>keyboardCodeList(keys,name).includes(code));
+  if(!bound.length)return;
+  e.preventDefault();if(held.has(code))return;held.add(code);
+  for(const name of ['camera','reset','bringBall','takePossession','launchBall','passBall'])if(bound.includes(name))onAction(name);
+ }
  window.addEventListener('keydown',e=>press(e.code,e));
  window.addEventListener('keyup',e=>held.delete(e.code));
- canvas.addEventListener('pointerdown',e=>{canvas.focus();press('Mouse'+e.button,e);});
- window.addEventListener('pointerup',e=>held.delete('Mouse'+e.button));
+ canvas.addEventListener('mousedown',e=>{canvas.focus();press('Mouse'+e.button,e);});
+ window.addEventListener('mouseup',e=>held.delete('Mouse'+e.button));
+ const clearMouse=()=>{for(const code of [...held])if(code.startsWith('Mouse'))held.delete(code);};
+ window.addEventListener('blur',clearMouse);
+ window.addEventListener('pointercancel',e=>held.delete('Mouse'+e.button));
  canvas.addEventListener('contextmenu',e=>{if(active())e.preventDefault();});
  function clear(){held.clear();for(const k of Object.keys(axes))axes[k]=0;}
  window.addEventListener('blur',clear);document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();});

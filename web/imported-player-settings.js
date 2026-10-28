@@ -23,6 +23,7 @@ export const importedProfile = {
     "lookXAxis": 2,
     "lookYAxis": 3,
     "deadzone": 0.1,
+    "deadzoneShape": "cross",
     "dodgeDeadzone": 0.7,
     "steeringSensitivity": 1.35,
     "aerialSensitivity": 1.45,

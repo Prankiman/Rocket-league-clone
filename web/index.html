@@ -17,10 +17,10 @@
         <p class="eyebrow">DAYTIME · ARENA INTERIOR</p>
         <h1>Beckwith Park</h1>
       </div>
-      <div class="actions"><button id="play" type="button" disabled>Loading car…</button><button id="controls-open" type="button">Controls</button><button id="camera-open" type="button">Camera</button><button id="free" type="button">Move inside</button><button id="reference-view" type="button">Reference corner</button><button id="reset" type="button">Reset view</button><button id="fullscreen" type="button">Fullscreen</button></div>
+      <div class="actions"><button id="play" type="button" disabled>Loading car…</button><button id="free" type="button">Move inside</button><button id="reference-view" type="button">Reference corner</button><button id="reset" type="button">Reset view</button><button id="fullscreen" type="button">Fullscreen</button></div>
     </header>
     <section id="viewport" aria-label="Interactive 3D field viewer">
-      <button id="performance-open" type="button">Settings</button>
+      <div id="settings-tools"><button id="controls-open" type="button">Controls</button><button id="camera-open" type="button">Camera</button><button id="audio-open" type="button">Audio</button><button id="performance-open" type="button">Settings</button></div>
       <canvas id="scene" tabindex="0" aria-label="Arena camera"></canvas>
       <section id="game-menu" aria-label="Game menu">
         <div class="menu-shade"></div>
@@ -32,7 +32,7 @@
         </div>
         <div class="menu-panel" data-panel="play" hidden>
           <p class="menu-kicker">PLAY</p><h2 class="menu-title">CHOOSE A MODE</h2>
-          <div class="mode-options"><button data-start="freeplay"><strong>FREE PLAY</strong><span>Training · Unlimited boost</span></button><button data-menu="offline"><strong>OFFLINE PLAY</strong><span>Exhibition · 1v1 against a bot</span></button></div>
+          <div class="mode-options"><button data-start="freeplay"><strong>FREE PLAY</strong><span>Training · Rocket League boost</span></button><button data-start="aim"><strong>AIM TRAINER</strong><span>Training · Hit the wall target</span></button><button data-menu="offline"><strong>OFFLINE PLAY</strong><span>Exhibition · 1v1 against a bot</span></button></div>
           <button class="menu-back" data-menu="home">BACK</button>
         </div>
         <div class="menu-panel" data-panel="offline" hidden>
@@ -59,14 +59,26 @@
         <p id="menu-message" class="menu-message" role="status" aria-live="polite">Loading arena…</p><div class="menu-bottom"><span id="menu-footer-hint">↑ ↓ SELECT · ENTER CONFIRM · ESC BACK</span><span>BECKWITH PARK</span></div>
       </section>
       <div id="match-scoreboard" hidden aria-label="Match score"><span id="score-blue">0</span><span id="match-clock">5:00</span><span id="score-orange">0</span></div>
+      <div id="training-hud" hidden aria-live="polite"></div>
       <div id="match-announcement" hidden role="status"></div>
       <div id="boost-gauge" hidden><strong id="boost-number">100</strong><span>BOOST</span></div>
       <button id="pause-game" hidden aria-label="Pause game">Ⅱ</button>
       <p id="freeplay-caption" hidden>FREE PLAY</p>
+      <div id="ball-cam-indicator" hidden role="img" aria-label="Car camera"></div>
       <div id="quality-control">
         <div class="quality-setting"><label for="quality-preset">Quality</label><select id="quality-preset" disabled><option value="realistic">Realistic</option><option value="balanced">Balanced</option><option value="low">Low</option></select></div>
         <div class="quality-setting"><label for="render-scale">Render scale</label><select id="render-scale"><option value=".4">40%</option><option value=".6" selected>60%</option><option value=".8">80%</option><option value=".85">85%</option><option value="1">100%</option></select></div>
+        <div class="quality-setting"><label for="skybox-upload">Skybox image</label><span class="skybox-upload"><input id="skybox-upload" type="file" accept="image/*" aria-label="Upload equirectangular skybox image"><button id="skybox-reset" type="button">Default</button></span></div>
+        <div class="quality-setting"><label for="show-hitbox">Show hitboxes</label><input id="show-hitbox" type="checkbox"></div>
         <p id="quality-description">Original geometry and full material detail.</p>
+        <section id="freeplay-controls" class="settings-section" aria-label="Free play settings">
+          <h3>Free play</h3>
+          <div class="quality-setting"><label for="boost-mode">Boost mode</label><select id="boost-mode" aria-label="Boost mode"><option value="standard">Standard (pads)</option><option value="unlimited">Unlimited</option></select></div>
+          <div class="quality-setting"><label for="game-speed">Game speed</label><span class="speed-controls"><input id="game-speed-slider" type="range" min="0" max="200" step="5" aria-label="Game speed slider"><input id="game-speed" type="number" min="0" max="200" step="1" inputmode="numeric" aria-label="Game speed percent"></span></div>
+          <div class="quality-setting"><label for="flip-reset-indicator">Flip reset indicator</label><input id="flip-reset-indicator" type="checkbox"></div>
+          <div class="quality-setting"><label for="ball-arrow-indicator">Ball location arrow</label><input id="ball-arrow-indicator" type="checkbox"></div>
+          <div class="quality-setting"><label for="ball-floor-indicator">Ball ground indicator</label><input id="ball-floor-indicator" type="checkbox"></div>
+        </section>
       </div>
       <div class="hint">Drag to orbit · Scroll to zoom · Right-drag to pan</div>
       <div id="status">Loading field…</div>
@@ -80,14 +92,13 @@
       <span>Material shading approximated</span>
     </footer>
   </main>
-      <dialog id="camera-settings"><h2>Camera &amp; performance</h2><p>Camera loaded from your save plus verified TAGame defaults: FOV 110, distance 270, height 100, angle −5, stiffness 0.4, swivel 10, transition 1.5. Your imported camera settings are applied. Camera motion remains the browser implementation.</p>
+      <dialog id="camera-settings"><h2>Camera</h2><p>Camera loaded from your save plus verified TAGame defaults: FOV 110, distance 270, height 100, angle −5, stiffness 0.4, swivel 10, transition 1.5. Your imported camera settings are applied. Camera motion remains the browser implementation.</p>
         <p id="controller-status" role="status">Connect controller, then press a button</p>
-        <label>Unlimited boost <input id="unlimited-boost" type="checkbox" checked></label>
         <p id="performance-status">Low-quality rendering · physics 120 Hz</p>
         <label>Render scheduling <select id="render-scheduling"><option value="uncapped">Uncapped</option><option value="display" selected>Display-paced</option></select></label>
-        <label>FPS cap <input id="fps-cap" type="number" min="0" max="1000" step="1" value="0"></label><p>0 = no application cap. Uncapped scheduling can render between display refreshes, with at most two GPU frames pending. Render FPS counts submitted frames; GPU FPS counts completed frames, not monitor refreshes. Physics stays at 120 Hz.</p>
+        <label>FPS cap <input id="fps-cap" type="number" min="0" max="1000" step="1" value="0"></label>
         <p>Use Controls to view or change your imported gamepad and keyboard bindings. Camera changes save automatically.</p>
-        <label>Camera shake <input name="shake" type="checkbox"></label><label>Invert swivel pitch <input name="invertSwivel" type="checkbox"></label><label>Toggle ball camera <input name="toggleBallCam" type="checkbox"></label><label>Start with ball camera <input name="ballCam" type="checkbox"></label><label>Show car hitbox <input id="show-hitbox" type="checkbox"></label><label>FOV <input name="fov" type="number" min="60" max="110" step="1"></label>
+        <label>Camera shake <input name="shake" type="checkbox"></label><label>Invert swivel pitch <input name="invertSwivel" type="checkbox"></label><label>Toggle ball camera <input name="toggleBallCam" type="checkbox"></label><label>Start with ball camera <input name="ballCam" type="checkbox"></label><label>FOV <input name="fov" type="number" min="60" max="110" step="1"></label>
         <label>Distance <input name="distance" type="number" min="100" max="400" step="10"></label>
         <label>Height <input name="height" type="number" min="40" max="200" step="10"></label>
         <label>Angle <input name="angle" type="number" min="-15" max="0" step="1"></label>
@@ -97,7 +108,8 @@
         <p>RocketSim runtime with the Octane handling family referenced by the original Fennec asset. Not the original Rocket League physics engine.</p><p>Original map and Fennec assets extracted locally. UE3 material effects and lighting translated for WebGL; not a pixel-identical renderer.</p>
         <p>Fennec: blue paint, original trim, lens covers and OEM wheels. Alpha Boost: Gold Rush.</p><p>Original Rocket League ball with panel textures and illuminated accents.</p>
       <div class="actions"><button id="camera-defaults">Restore imported camera</button><button id="camera-close">Done</button></div></dialog>
-  <dialog id="controls-panel"><h2>Controls</h2><p>Your Rocket League controls were imported from the local save. Changing dodge deadzone resets the car when you close this panel.</p><p id="binding-status" role="status"></p><p id="controller-live"></p><div id="binding-rows"></div><label>Controller deadzone <input id="controller-deadzone" type="number" min="0" max=".95" step=".01"></label><p>Shared buttons are allowed. Settings save automatically in this browser. Keyboard controls remain available.</p><div class="actions"><button id="controls-defaults">Restore imported settings</button><button id="controls-close">Done</button></div></dialog>
+  <dialog id="audio-settings"><h2>Audio &amp; mixer</h2><p>Rocket League sound effects bundled locally (source · Unlicense, see web/assets/audio/README.md). Slider changes apply immediately and save in this browser.</p><div id="mixer-rows"></div><div class="actions"><button id="audio-test">Test sound</button><button id="audio-reset">Reset volumes</button><button id="audio-close">Done</button></div></dialog>
+  <dialog id="controls-panel"><h2>Controls</h2><p>Your Rocket League controls were imported from the local save. Changing dodge deadzone resets the car when you close this panel.</p><p id="binding-status" role="status"></p><p id="controller-live"></p><div id="binding-rows"></div><label>Controller deadzone <input id="controller-deadzone" type="number" min="0" max=".95" step=".01"></label><label>Deadzone shape <select id="deadzone-shape" aria-label="Deadzone shape"><option value="cross">Cross (Rocket League)</option><option value="square">Square</option><option value="circle">Circle</option></select></label><p>Each steering, pitch and look direction can be bound separately to a controller button or a stick/trigger direction — for example pitch up to left stick up and pitch down to B / Circle. Analog triggers give proportional directional air roll when bound to air roll left/right. Deadzone shapes follow Steam Input: cross matches Rocket League's native axes, square lets diagonals hit full tilt, circle scales radially.</p><p>Keyboard and controller bindings are separate sections. Every action can use several inputs, and shared buttons are allowed. Settings save automatically in this browser.</p><div class="actions"><button id="controls-defaults">Restore imported settings</button><button id="controls-close">Done</button></div></dialog>
   <script type="module" src="./bootstrap.js?v=pages-performance-2"></script>
 </body>
 </html>
